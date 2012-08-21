@@ -1,4 +1,5 @@
 # Ransack
+[![Build Status](https://secure.travis-ci.org/NiDi/ransack.png)](http://travis-ci.org/NiDi/ransack)
 
 Ransack is a rewrite of [MetaSearch](http://metautonomo.us/projects/metasearch). While it
 supports many of the same features as MetaSearch, its underlying implementation differs

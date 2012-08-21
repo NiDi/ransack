@@ -92,6 +92,30 @@ module Ransack
 
       end
 
+      describe '#condition_fields' do
+        it 'returns previously-entered values' do
+          @s.name_eq = "basilikum"
+          html = ''
+          @f.condition_fields do |c|
+            c.attribute_fields do |a|
+              html = a.attribute_select
+            end
+          end
+          html.should match /<option value=\"name\" selected/
+        end
+        
+        it 'filters attributes in :except' do
+          @s.name_eq = "basilikum"
+          html = ''
+          @f.condition_fields :except => ['name'] do |c|
+            c.attribute_fields do |a|
+              html = a.attribute_select
+            end
+          end
+          html.should_not match /<option value=\"name\" selected/
+        end
+      end
+
       describe '#predicate_select' do
 
         it 'returns predicates with predicate_select' do
