@@ -74,6 +74,20 @@ module Ransack
           end
         end
 
+        it 'returns only ransackable attributes given in :only' do
+          html = @f.attribute_select :only => ['name']
+          html.split(/\n/).should have(2).lines
+          html.should match /<option value="name">/
+        end
+
+        it 'returns only ransackable attributes for associations with :associations given in :only' do
+          html = @f.attribute_select :associations => ['articles'], :only => ['name', 'title']
+          html.split(/\n/).should have(2).lines
+          ['name', 'articles_title'].each do |attribute|
+            html.should match /<option value="#{attribute}">/
+          end
+        end
+        
         it 'returns ransackable attributes for associations with :associations' do
           attributes = Person.ransackable_attributes + Article.ransackable_attributes.map {|a| "articles_#{a}"}
           html = @f.attribute_select :associations => ['articles']
@@ -82,6 +96,7 @@ module Ransack
             html.should match /<option value="#{attribute}">/
           end
         end
+
 
         it 'returns option groups for base and associations with :associations' do
           html = @f.attribute_select :associations => ['articles']

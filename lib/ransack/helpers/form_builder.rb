@@ -20,14 +20,15 @@ module Ransack
       def attribute_select(options = {}, html_options = {})
         raise ArgumentError, "attribute_select must be called inside a search FormBuilder!" unless object.respond_to?(:context)
         options[:include_blank] = true unless options.has_key?(:include_blank)
+        only = options.delete(:only) || nil
         bases = [''] + association_array(options[:associations])
         if bases.size > 1
           @template.grouped_collection_select(
-            @object_name, :name, attribute_collection_for_bases(bases), :last, :first, :first, :last,
+            @object_name, :name, attribute_collection_for_bases(bases, only), :last, :first, :first, :last,
             objectify_options(options), @default_options.merge(html_options)
           )
         else
-          collection = object.context.searchable_attributes(bases.first).map do |c|
+          collection = object.context.searchable_attributes(bases.first).reject{|attr| only.is_a?(Array) && !only.include?(attr)}.map do |c|
             [
               attr_from_base_and_column(bases.first, c),
               Translate.attribute(attr_from_base_and_column(bases.first, c), :context => object.context)
@@ -173,18 +174,18 @@ module Ransack
         [base, column].reject {|v| v.blank?}.join('_')
       end
 
-      def attribute_collection_for_bases(bases)
+      def attribute_collection_for_bases(bases, only=nil)
         bases.map do |base|
           begin
-          [
-            Translate.association(base, :context => object.context),
-            object.context.searchable_attributes(base).map do |c|
+            [
+              Translate.association(base, :context => object.context),
+              object.context.searchable_attributes(base).reject{|attr| only.is_a?(Array) && !only.include?(attr)}.map do |c|
               [
                 attr_from_base_and_column(base, c),
                 Translate.attribute(attr_from_base_and_column(base, c), :context => object.context)
               ]
-            end
-          ]
+              end
+            ]
           rescue UntraversableAssociationError => e
             nil
           end
